@@ -6,6 +6,32 @@ FIGURE OUT HOW TO HANDLE BIG BLINDS
 '''
 
 ME = "Andrew"
+# Returns number of calls per person for the given log CSV file
+# ex: {
+#   "Andrew": 10,
+#   "Dorothy": 2
+# }
+def parseLogForShoves(filename: str):
+    all_shoves = {}
+    for person in people:
+        all_shoves[person] = 0
+    with open(filename, newline='') as f:
+        reader = csv.reader(f)
+        # Get messages in log from first to last hand
+        messages = []
+        for row in reader:
+            messages.append(row[0])
+        messages.reverse()
+
+        # Iterate through messages from first to last hand
+        for msg in messages:
+            # In a shove msg
+            if isShove(msg):
+                player = extractPlayer(msg)
+                all_shoves[player] += 1
+
+    return {k: v for k, v in sorted(all_shoves.items(), key=lambda item: item[1])}
+
 # Returns a list of preflop calls per person for the given log CSV file
 # ex: {
 #   "Andrew": [0.04, "AhKh", 0.1, "AhAs"],
@@ -64,6 +90,11 @@ def parseLogForPreflopCalls(filename: str):
                 all_calls[person].append((calls[person], hands[person]))
 
     return all_calls
+
+# True if the msg is a "Player calls 5.56 and go all in" message
+def isShove(msg):
+    if "go all in" in msg:
+        return True
 
 # True if the msg is a "Player shows a 2♣, 5♣" message
 def isShow(msg):
