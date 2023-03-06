@@ -1,4 +1,5 @@
 import csv
+import os
 from aliases import people, aliasToPerson
 
 '''
@@ -32,13 +33,25 @@ def parseLogForShoves(filename: str):
 
     return {k: v for k, v in sorted(all_shoves.items(), key=lambda item: item[1])}
 
+# Returns a list of preflop calls per person for the given folder of log CSV files
+# ex: {
+#   "Andrew": [0.04, "AhKh", 0.1, "AhAs"],
+#   "Dorothy": [1.00, "2s7h"]
+# }
+def parseFolderForPreflopCalls(folder: str):
+    all_calls = {}
+    for file in os.listdir(folder):
+        all_calls = parseLogForPreflopCalls(folder + "/" + file, all_calls)
+    return all_calls
+
 # Returns a list of preflop calls per person for the given log CSV file
 # ex: {
 #   "Andrew": [0.04, "AhKh", 0.1, "AhAs"],
 #   "Dorothy": [1.00, "2s7h"]
 # }
-def parseLogForPreflopCalls(filename: str):
-    all_calls = {}
+def parseLogForPreflopCalls(filename: str, all_calls=None):
+    if all_calls is None:
+        all_calls = {}
     for person in people:
         all_calls[person] = []
     with open(filename, newline='') as f:

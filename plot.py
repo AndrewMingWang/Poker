@@ -49,28 +49,58 @@ def indexToNum(i):
     else:
         return str(14 - i)
 
-def plotPreflopCalls(all_calls, person="Andrew", filename="preflop_calls_Andrew.png"):
+def plotPreflopCalls(all_calls, person="Andrew", filename="preflop_calls_Andrew.png", aggregator="max"):
+    if aggregator not in ["max", "avg"]:
+        print("ERROR! " + aggregator + " is not a valid aggregator (max, avg).")
+        return
     person_calls = all_calls[person]
 
-    z = np.array([0] * (13*13))
-    z = z.reshape(13, 13)
-    zlog = z.copy()
-    for call in person_calls:
-        call_amount, call_hand = call
-        r, c = canonicalCardsToIndex(call_hand[:2], call_hand[2:])
-        # Track the largest preflop call made for this hand
-        z[r][c] = max(call_amount * 100, z[r][c])
-        zlog[r][c] = max(np.log(call_amount * 100), zlog[r][c])
+    # Convert calls data into poker hands table format
+    z = np.zeros((13, 13))
+    if aggregator == "max":
+        for call in person_calls:
+            call_amount, call_hand = call
+            r, c = canonicalCardsToIndex(call_hand[:2], call_hand[2:])
+            # Track the largest preflop call made for this hand
+            z[r][c] = max(call_amount * 100, z[r][c])
+    elif aggregator == "avg":
+        zcounts = np.zeros((13, 13))
+        for call in person_calls:
+            call_amount, call_hand = call
+            r, c = canonicalCardsToIndex(call_hand[:2], call_hand[2:])
+            # Track the sum of all preflop calls made for this hand
+            z[r][c] += call_amount * 100
+            zcounts[r][c] += 1
+        for r in range(13):
+            for c in range(13):
+                if zcounts[r][c] != 0:
+                    z[r][c] /= zcounts[r][c]
 
+    # Calculate log version of output
+    zlog = np.zeros((13, 13))
+    for r in range(13):
+        for c in range(13):
+            if z[r][c] != 0:
+                zlog[r][c] = np.log(z[r][c])
+
+    # Setup figure
     fig, ax = plt.subplots(figsize=(12, 12))
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)
+
+    # Make color plot background
     ax.imshow(zlog, interpolation='none', aspect='auto',cmap=plt.cm.gray)
+
+    # Make labels
     for (j, i), label in np.ndenumerate(z):
-        ax.text(i, j, indexToCanonicalCards(i, j), ha='center', va='bottom', color='w', name='consolas')\
+        ax.text(i, j, indexToCanonicalCards(i, j),
+            ha='center', va='bottom', color='w', name='consolas')\
             .set_path_effects([PathEffects.withStroke(linewidth=2, foreground='black')])
-        ax.text(i, j, "\n" + str(label) if label != 0 else "", ha='center', va='center', color='w', weight='heavy', size=11, name='consolas')\
+        ax.text(i, j, "\n" + str(int(label)) if label != 0 else "",
+            ha='center', va='center', color='w', weight='heavy', size=11, name='consolas')\
             .set_path_effects([PathEffects.withStroke(linewidth=0 if label == 0 else 2, foreground='black')])
+
+    # Display and save
     plt.savefig("figures/" + filename, pad_inches=0.1, bbox_inches='tight')
 
 

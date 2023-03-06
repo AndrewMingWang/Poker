@@ -1,8 +1,8 @@
 from plot import plotPreflopCalls
-from parse import parseLogForPreflopCalls, parseLogForShoves
+import parse
 
-# all_calls = parseLogForPreflopCalls("data/02_28_2023.csv")
-# plotPreflopCalls(all_calls, "Andrew", "preflop_calls_Andrew.png")
-all_shoves = parseLogForShoves("data/02_28_2023.csv")
+all_calls = parse.parseFolderForPreflopCalls("data")
+plotPreflopCalls(all_calls, "Andrew", "preflop_calls_max_Andrew.png", aggregator="max")
 
-print(all_shoves)
+# all_shoves = parseLogForShoves("data/02_28_2023.csv")
+# print(all_shoves)
