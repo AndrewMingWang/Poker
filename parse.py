@@ -53,7 +53,8 @@ def parseLogForPreflopCalls(filename: str, all_calls=None):
     if all_calls is None:
         all_calls = {}
     for person in people:
-        all_calls[person] = []
+        if person not in all_calls:
+            all_calls[person] = []
     with open(filename, newline='') as f:
         reader = csv.reader(f)
         # Get messages in log from first to last hand

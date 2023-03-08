@@ -7,7 +7,8 @@ def aliasToPerson(alias):
 people = {"Andi", "Andrew", "Danial", "Dorothy", "Fred", "Jade", "Joel", "Juli", "Matthew", "Qi", "Sunny"}
 aliases = {
     "Andi": [
-        "Ayatollah Cum"
+        "Ayatollah Cum",
+        "Ayatollah cum"
     ],
     "Andrew": [
         "Andrew"
@@ -28,7 +29,8 @@ aliases = {
         "Joel"
     ],
     "Juli": [
-        "Juli"
+        "Juli",
+        "Jul"
     ],
     "Matthew": [
         "matt2"
