@@ -6,7 +6,7 @@ from aliases import people, aliasToPerson
 FIGURE OUT HOW TO HANDLE BIG BLINDS
 '''
 
-ME = "Andrew"
+ME = "Qi"
 # Returns number of calls per person for the given log CSV file
 # ex: {
 #   "Andrew": 10,
