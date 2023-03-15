@@ -6,7 +6,9 @@ from aliases import people, aliasToPerson
 FIGURE OUT HOW TO HANDLE BIG BLINDS
 '''
 
-ME = "Qi"
+def parseLogForStacks(filename: str):
+    pass
+
 # Returns number of calls per person for the given log CSV file
 # ex: {
 #   "Andrew": 10,
@@ -38,10 +40,10 @@ def parseLogForShoves(filename: str):
 #   "Andrew": [0.04, "AhKh", 0.1, "AhAs"],
 #   "Dorothy": [1.00, "2s7h"]
 # }
-def parseFolderForPreflopCalls(folder: str):
+def parseFolderForPreflopCalls(folder: str, perspective: "Andrew"):
     all_calls = {}
     for file in os.listdir(folder):
-        all_calls = parseLogForPreflopCalls(folder + "/" + file, all_calls)
+        all_calls = parseLogForPreflopCalls(folder + "/" + file, all_calls, perspective=perspective)
     return all_calls
 
 # Returns a list of preflop calls per person for the given log CSV file
@@ -49,7 +51,7 @@ def parseFolderForPreflopCalls(folder: str):
 #   "Andrew": [0.04, "AhKh", 0.1, "AhAs"],
 #   "Dorothy": [1.00, "2s7h"]
 # }
-def parseLogForPreflopCalls(filename: str, all_calls=None):
+def parseLogForPreflopCalls(filename: str, all_calls=None, perspective="Andrew"):
     if all_calls is None:
         all_calls = {}
     for person in people:
@@ -87,11 +89,11 @@ def parseLogForPreflopCalls(filename: str, all_calls=None):
                 calls[player] = max(calls[player], float(amount))
             # In a flop msg
             elif isFlop(msg):
-                preflop = False
+                isPreflop = False
             # In a showing my hand msg
             elif isMyHand(msg):
                 hand = extractMyHand(msg)
-                hands[ME] = hand
+                hands[perspective] = hand
             # In a showing player hand msg
             elif isShow(msg):
                 hand = extractShowHand(msg)
@@ -122,7 +124,7 @@ def isMyHand(msg):
 
 # True if the msg is a "Flop:" message
 def isFlop(msg):
-    if "Flop: " in msg:
+    if "Flop:" in msg:
         return True
 
 # True if the msg is a "player calls 0.04" message

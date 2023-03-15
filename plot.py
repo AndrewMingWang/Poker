@@ -49,7 +49,7 @@ def indexToNum(i):
     else:
         return str(14 - i)
 
-def plotPreflopCalls(all_calls, person="Andrew", filename="preflop_calls_Andrew.png", aggregator="max"):
+def plotPreflopCalls(all_calls, person="Andrew", filename="preflop_calls_Andrew.png", aggregator="max", save=False):
     if aggregator not in ["max", "avg"]:
         print("ERROR! " + aggregator + " is not a valid aggregator (max, avg).")
         return
@@ -101,6 +101,9 @@ def plotPreflopCalls(all_calls, person="Andrew", filename="preflop_calls_Andrew.
             .set_path_effects([PathEffects.withStroke(linewidth=0 if label == 0 else 2, foreground='black')])
 
     # Display and save
-    plt.savefig("figures/" + filename, pad_inches=0.1, bbox_inches='tight')
+    if save:
+        plt.savefig("figures/" + filename, pad_inches=0.1, bbox_inches='tight')
+    else:
+        plt.show()
 
 
