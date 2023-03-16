@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as PathEffects
+import math
 
 # Given strings "7c", "8c" returns its indices (x, y) in the poker hands chart
 def canonicalCardsToIndex(s1, s2):
@@ -106,4 +107,26 @@ def plotPreflopCalls(all_calls, person="Andrew", filename="preflop_calls_Andrew.
     else:
         plt.show()
 
+def plotStacks(all_stacks, filename="stacks.png", save=False):
+    n = 0
+    for person in all_stacks:
+        n = len(all_stacks[person])
+    x = range(0, n)
+    not_playing =  {"Matthew"}
 
+    maxi, mini = 0, 9999
+    for person in all_stacks:
+        if person not in not_playing:
+            plt.plot(x, all_stacks[person], label=person)
+            maxi = max(maxi, max(all_stacks[person]))
+            mini = min(mini, min(all_stacks[person]))
+
+    for person in all_stacks:
+        if person not in not_playing:
+            plt.text(n+1, all_stacks[person][-1], person + ": " + str(all_stacks[person][-1]))
+
+    plt.xticks(range(0, int(math.ceil(3 + float(n) / 10) * 10), 10))
+    plt.yticks(range(200 *math.floor((mini / 200)), 200 * (math.ceil((maxi / 200))+1), 200))
+    plt.grid()
+    plt.legend()
+    plt.show()

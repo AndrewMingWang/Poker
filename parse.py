@@ -6,8 +6,132 @@ from aliases import people, aliasToPerson
 FIGURE OUT HOW TO HANDLE BIG BLINDS
 '''
 
-def parseLogForStacks(filename: str):
-    pass
+# Returns stacks per person for the given log CSV file
+# ex: {
+#   "Andrew": [500, 490, 300]
+#   "Dorothy": [500, 510, 700]
+# }
+def ParseLogForStacks(filename: str):
+    all_stacks = {}
+    buy_ins = {}
+    for player in people:
+        all_stacks[player] = []
+        buy_ins[player] = 0
+
+    with open(filename, newline='') as f:
+        reader = csv.reader(f)
+        # Get messages in log from first to last hand
+        messages = []
+        for row in reader:
+            messages.append(row[0])
+        messages.reverse()
+
+        # Iterate through messages from first to last hand
+        count = 0
+        prev_round_in = {}
+        for player in people:
+            prev_round_in[player] = False
+        last_round = 0
+        for msg in messages:
+            # In a stack message:
+            if isStack(msg):
+                # Initialize everyones stack to 0 (track people who need to buy in again)
+                stackamounts = {}
+                for player in people:
+                    stackamounts[player] = 0
+
+                # Get (player, stack amount) tuples
+                rawMsgs = msg.split("|")
+                for playerStackRawMsg in rawMsgs:
+                    player, amount = getPlayerStackTuple(playerStackRawMsg)
+                    stackamounts[player] = amount
+
+                for player in people:
+                    if not prev_round_in[player] and stackamounts[player] > 0:
+                        buy_ins[player] += 1
+
+                for player in people:
+                    if stackamounts[player] == 0:
+                        prev_round_in[player] = False
+                    else:
+                        prev_round_in[player] = True
+
+                for player in people:
+                    all_stacks[player].append(stackamounts[player] - 500 * buy_ins[player])
+            # In an ending hand message:
+            if isHandEnding(msg):
+                last_round = extractHandNumberFromHandEnding(msg)
+
+        def getPlayerAmountsTuple(msg):
+            if isCall(msg) or isRaise(msg) or isBet(msg) or "posts" in msg:
+                amount = extractAmount(msg)
+                player = extractPlayer(msg)
+                return player, int(float(amount) * 100)
+            else:
+                return "Andrew", 0
+
+        # Manually calculate stacks for last hand
+        for i in range(len(messages)):
+            msg = messages[i]
+            if isNewHand(msg):
+                if extractHandNumberFromHandStarting(msg) == last_round:
+                    deltas = {}
+                    action = True
+                    for player in people:
+                        deltas[player] = 0
+                    while i < len(messages) and action:
+                        msg = messages[i]
+                        if isFlop(msg):
+                            print("FLOP")
+                            break
+                        if "Uncalled bet" in msg:
+                            player = aliasToPerson(msg.split(" ")[-3][1:])
+                            amount = int(float(msg.split(" ")[3]) * 100)
+                            action = False
+                            deltas[player] += amount
+                        player, amount = getPlayerAmountsTuple(msg)
+                        deltas[player] -= amount
+                        i += 1
+                    print(deltas)
+                    while i < len(messages) and action:
+                        msg = messages[i]
+                        if isTurn(msg):
+                            print("TURN")
+                            break
+                        if "Uncalled bet" in msg:
+                            player = aliasToPerson(msg.split(" ")[-3][1:])
+                            amount = int(float(msg.split(" ")[3]) * 100)
+                            action = False
+                            deltas[player] += amount
+                        player, amount = getPlayerAmountsTuple(msg)
+                        deltas[player] -= amount
+                        i += 1
+                    print(deltas)
+                    while i < len(messages) and action:
+                        msg = messages[i]
+                        if isRiver(msg):
+                            print("RIVER")
+                            break
+                        if "Uncalled bet" in msg:
+                            player = aliasToPerson(msg.split(" ")[-3][1:])
+                            amount = int(float(msg.split(" ")[3]) * 100)
+                            action = False
+                            deltas[player] += amount
+                        player, amount = getPlayerAmountsTuple(msg)
+                        deltas[player] -= amount
+                        i += 1
+                    print(deltas)
+                    while i < len(messages):
+                        msg = messages[i]
+                        if "collected" in msg:
+                            player = extractPlayer(msg)
+                            amount = int(float(msg.split(" ")[4]) * 100)
+                            deltas[player] += amount
+                        i += 1
+                    print(deltas)
+
+
+    return all_stacks
 
 # Returns number of calls per person for the given log CSV file
 # ex: {
@@ -107,6 +231,11 @@ def parseLogForPreflopCalls(filename: str, all_calls=None, perspective="Andrew")
 
     return all_calls
 
+# True if the msg is a "Player stacks: #2 "..."" message
+def isStack(msg):
+    if "Player stacks: #" in msg:
+        return True
+
 # True if the msg is a "Player calls 5.56 and go all in" message
 def isShove(msg):
     if "go all in" in msg:
@@ -127,6 +256,16 @@ def isFlop(msg):
     if "Flop:" in msg:
         return True
 
+# True if the msg is a "Turn:" message
+def isTurn(msg):
+    if "Turn:" in msg:
+        return True
+
+# True if the msg is a "River:" message
+def isRiver(msg):
+    if "River:" in msg:
+        return True
+
 # True if the msg is a "player calls 0.04" message
 def isCall(msg):
     if " calls " in msg:
@@ -136,6 +275,26 @@ def isCall(msg):
 def isRaise(msg):
     if " raises " in msg:
         return True
+
+# True if the msg is a "player bets 0.04" message
+def isBet(msg):
+    if " bets " in msg and "Uncalled" not in msg:
+        return True
+
+# True if the msg is a "-- ending hand #118--" message
+def isHandEnding(msg):
+    if "ending hand" in msg:
+        return True
+
+# Extracts hand number from "-- ending hand #118--" message
+def extractHandNumberFromHandEnding(msg):
+    words = msg.split(" ")
+    return int(words[-2][1:])
+
+# Extracts hand number from "starting hand #1" message
+def extractHandNumberFromHandStarting(msg):
+    words = msg.split(" ")
+    return int(words[3][1:])
 
 # Gets the hands in a "Player shows a 2♣, 5♣" message
 def extractShowHand(msg):
@@ -237,4 +396,28 @@ def canonicalNumToInt(n):
     else:
         return int(n)
 
+# Parse "#10 "Andrew @ yhDVFE17BV" (19.61)" message into (Andrew, 19.61) player, stack amount tuples
+def getPlayerStackTuple(msg):
+    start, stop = 0, 0
+    for i in range(len(msg)):
+        if msg[i] == "\"":
+            start = i + 1
+            break
+    for i in range(len(msg)):
+        if msg[i] == "@":
+            stop = i - 1
+            break
+    player = aliasToPerson(msg[start:stop])
+    for i in range(len(msg)):
+        if msg[i] == "(":
+            start = i + 1
+            break
+    for i in range(len(msg)):
+        if msg[i] == ")":
+            stop = i
+            break
+    amount = msg[start:stop]
+    return player, int(float(amount) * 100)
+
 # ParseLogForPreflopCalls('data/02_28_2023.csv')
+# ParseLogForStacks("data_All/03_15_2023.csv")
