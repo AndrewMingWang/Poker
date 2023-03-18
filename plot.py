@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as PathEffects
 import math
+import random
 
 # Given strings "7c", "8c" returns its indices (x, y) in the poker hands chart
 def canonicalCardsToIndex(s1, s2):
@@ -107,26 +108,56 @@ def plotPreflopCalls(all_calls, person="Andrew", filename="preflop_calls_Andrew.
     else:
         plt.show()
 
-def plotStacks(all_stacks, filename="stacks.png", save=False):
+def plotStacks(all_stacks, not_playing={"Matthew"}):
     n = 0
     for person in all_stacks:
         n = len(all_stacks[person])
+        break
     x = range(0, n)
-    not_playing =  {"Matthew"}
+
+    NUM_COLORS = len(all_stacks)
+
+    cm = plt.get_cmap('gist_rainbow')
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_prop_cycle('color', [cm(1. * i / NUM_COLORS) for i in range(NUM_COLORS)])
 
     maxi, mini = 0, 9999
     for person in all_stacks:
         if person not in not_playing:
-            plt.plot(x, all_stacks[person], label=person)
+            ax.plot(x, all_stacks[person], marker='.', label=person)
             maxi = max(maxi, max(all_stacks[person]))
             mini = min(mini, min(all_stacks[person]))
 
     for person in all_stacks:
         if person not in not_playing:
-            plt.text(n+1, all_stacks[person][-1], person + ": " + str(all_stacks[person][-1]))
+            plt.text(n, all_stacks[person][-1], person)
 
-    plt.xticks(range(0, int(math.ceil(3 + float(n) / 10) * 10), 10))
-    plt.yticks(range(200 *math.floor((mini / 200)), 200 * (math.ceil((maxi / 200))+1), 200))
+    plt.xticks(range(0, int(math.ceil(float(n) / 10) * 10), 10))
+    plt.yticks(range(200 *math.floor((mini / 200)), 200 * (math.ceil((maxi / 200))), 200))
+    plt.grid()
+    plt.legend()
+    plt.show()
+
+def plotReturns(all_returns, not_playing={"Matthew"}):
+    n = 0
+    for person in all_returns:
+        n = len(all_returns[person])
+        break
+    x = range(0, n)
+
+    NUM_COLORS = len(all_returns)
+
+    cm = plt.get_cmap('gist_rainbow')
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_prop_cycle('color', [cm(1. * i / NUM_COLORS) for i in range(NUM_COLORS)])
+
+    for person in all_returns:
+        if person not in not_playing:
+            ax.plot(x, all_returns[person], label=person)
+
+    plt.xticks(range(0, int(math.ceil(float(n) / 10) * 10), 10))
     plt.grid()
     plt.legend()
     plt.show()
