@@ -2,54 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as PathEffects
 import math
-import random
-
-# Given strings "7c", "8c" returns its indices (x, y) in the poker hands chart
-def canonicalCardsToIndex(s1, s2):
-    num1, num2, suit1, suit2 = s1[0], s2[0], s1[1], s2[1]
-    if suit1 == suit2:
-        return numToIndex(num1), numToIndex(num2)
-    else:
-        return numToIndex(num2), numToIndex(num1)
-
-# Given index (x, y) returns its hand "AKs" in the poker hands chart
-def indexToCanonicalCards(r, c):
-    if r == c:
-        return indexToNum(r) + indexToNum(c)
-    elif r < c:
-        return indexToNum(r) + indexToNum(c) + 'o'
-    else:
-        return indexToNum(c) + indexToNum(r) + 's'
-
-# Converts card number to index in the poker hands chart
-def numToIndex(n):
-    if n == "A":
-        return 0
-    elif n == "K":
-        return 1
-    elif n == "Q":
-        return 2
-    elif n == "J":
-        return 3
-    elif n == "T":
-        return 4
-    else:
-        return 14 - int(n)
-
-# Converts index in the poker hands chart to card number
-def indexToNum(i):
-    if i == 0:
-        return "A"
-    elif i == 1:
-        return "K"
-    elif i == 2:
-        return "Q"
-    elif i == 3:
-        return "J"
-    elif i == 4:
-        return "T"
-    else:
-        return str(14 - i)
+from hands import canonicalCardsToIndex, indexToCanonicalCards
 
 def plotPreflopCalls(all_calls, person="Andrew", filename="preflop_calls_Andrew.png", aggregator="max", save=False):
     if aggregator not in ["max", "avg"]:

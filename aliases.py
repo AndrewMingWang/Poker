@@ -4,8 +4,11 @@ def aliasToPerson(alias):
             return person
     print("ERROR! Alias not tracked: ", alias)
 
-people = {"Joel", "Andi", "Andrew", "Danial", "Dorothy", "Fred", "Jade", "Juli", "Matthew", "Qi", "Sunny", "William"}
+people = {"Joel", "Andi", "Andrew", "Danial", "Dorothy", "Fred", "Jade", "Juli", "Matthew", "Qi", "Sunny", "William", "Daisy"}
 aliases = {
+    "Daisy": [
+        "Daisy",
+    ],
     "Andi": [
         "Ayatollah Cum",
         "Ayatollah cum"
@@ -14,10 +17,12 @@ aliases = {
         "Andrew"
     ],
     "Danial": [
-        "Danial"
+        "Danial",
+        "danial"
     ],
     "Dorothy": [
-        "dorothy"
+        "dorothy",
+        "Dorothy"
     ],
     "Fred": [
         "Fred"
@@ -30,13 +35,16 @@ aliases = {
     ],
     "Juli": [
         "Juli",
-        "Jul"
+        "Jul",
+        "Juls",
+        "ju"
     ],
     "Matthew": [
         "matt2"
     ],
     "Qi": [
-        "qipanda"
+        "qipanda",
+        "qi"
     ],
     "Sunny": [
         "the giver x4",

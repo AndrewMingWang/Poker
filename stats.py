@@ -1,5 +1,16 @@
 from aliases import people
+from hands import canonicalCardsToPercentile
 import math
+
+def CalculatePercentiles(all_calls):
+    avg_percentiles = {}
+    for player in people:
+        s, count = 0, 0
+        for hand in all_calls[player]:
+            s += canonicalCardsToPercentile(hand[1][:2], hand[1][2:])
+            count += 1
+        avg_percentiles[player] = round(float(s) / float(count), 6)
+    return avg_percentiles
 
 def CalculatePercentageReturns(all_stacks):
     all_returns = {}

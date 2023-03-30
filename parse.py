@@ -164,8 +164,8 @@ def parseLogForShoves(filename: str):
 
 # Returns a list of preflop calls per person for the given folder of log CSV files
 # ex: {
-#   "Andrew": [0.04, "AhKh", 0.1, "AhAs"],
-#   "Dorothy": [1.00, "2s7h"]
+#   "Andrew": [(0.04, "AhKh"), (0.1, "AhAs")],
+#   "Dorothy": [(1.00, "2s7h")]
 # }
 def parseFolderForPreflopCalls(folder: str, perspective: "Andrew"):
     all_calls = {}
@@ -175,8 +175,8 @@ def parseFolderForPreflopCalls(folder: str, perspective: "Andrew"):
 
 # Returns a list of preflop calls per person for the given log CSV file
 # ex: {
-#   "Andrew": [0.04, "AhKh", 0.1, "AhAs"],
-#   "Dorothy": [1.00, "2s7h"]
+#   "Andrew": [(0.04, "AhKh"), (0.1, "AhAs")],
+#   "Dorothy": [(1.00, "2s7h")]
 # }
 def parseLogForPreflopCalls(filename: str, all_calls=None, perspective="Andrew"):
     if all_calls is None:
